@@ -17,10 +17,17 @@ Globalize::ActiveRecord::ActMacro.module_eval do
       self.versioning_gem = :paper_trail
 
       ::ActiveRecord::Base.extend(Globalize::Versioning::PaperTrail)
-      if options[:versioning].is_a?(Hash)
-        translation_class.has_paper_trail(options[:versioning][:options])
+
+      if translation_class < ::PaperTrail::InstanceMethods
+        if options[:versioning].is_a?(Hash)
+          raise ArgumentError, "Cannot specify versioning options when the model has already called has_paper_trail"
+        end
       else
-        translation_class.has_paper_trail
+        if options[:versioning].is_a?(Hash)
+          translation_class.has_paper_trail(options[:versioning][:options])
+        else
+          translation_class.has_paper_trail
+        end
       end
     end
   end
